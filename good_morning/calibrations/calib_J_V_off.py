@@ -1,12 +1,16 @@
-from dev_V2.six_qubit_QC.system import six_dot_sample
-from core_tools.sweeps.sweeps import scan_generic, do0D, do1D
-from core_tools.sweeps.pulse_lib_wrappers.PSB_exp import run_qubit_exp
-from pulse_templates.coherent_control.two_qubit_gates.cphase import cphase_basic
-
-from core_tools.utility.variable_mgr.var_mgr import variable_mgr
-import pulse_lib.segments.utility.looping as lp
-from good_morning.fittings.fit_rabi_osc import fit_ramsey
 from good_morning.fittings.J_versus_voltage import fit_J, J_to_voltage, voltage_to_J
+from good_morning.calibrations.ultility import get_target, readout_convertor
+from good_morning.fittings.fit_rabi_osc import fit_ramsey
+
+from core_tools.sweeps.pulse_lib_wrappers.PSB_exp import run_qubit_exp
+from core_tools.utility.variable_mgr.var_mgr import variable_mgr
+from core_tools.sweeps.sweeps import scan_generic, do0D, do1D
+from core_tools.job_mgnt.job_mgmt import job_wrapper
+
+import pulse_lib.segments.utility.looping as lp
+
+from pulse_templates.coherent_control.two_qubit_gates.cphase import cphase_basic
+from dev_V2.six_qubit_QC.system import six_dot_sample
 
 import qcodes as qc
 import numpy as np
@@ -17,6 +21,7 @@ import good_morning.static.J34 as J34
 import good_morning.static.J45 as J45
 import good_morning.static.J56 as J56
 
+@job_wrapper
 def calib_J_V_off(target, plot=False):
 	'''
 	calibrates a single qubit phase for a target qubit
@@ -52,8 +57,8 @@ def calib_J_V_off(target, plot=False):
 	sequence, minstr, name = run_qubit_exp(f'J_V_off cal :: {target}', s.segments(), s.measurement_manager)
 	ds = scan_generic(sequence, minstr, name=name).run()
 
-	time = ds(f'read{target[0]}').x()*1e-9
-	probabilities = ds(f'read{target[0]}').y()
+	time = ds(readout_convertor(f'read{target[0]}')).x()*1e-9
+	probabilities = ds(readout_convertor(f'read{target[0]}')).y()
 	time = time[5:]
 	probabilities = probabilities[5:]
 	Pi_time = fit_ramsey(time, probabilities, plot=plot)

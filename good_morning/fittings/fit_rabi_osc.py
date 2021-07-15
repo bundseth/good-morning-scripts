@@ -76,6 +76,7 @@ def fit_ramsey(time,amplitudes, plot=False):
 		plt.show()
 	# min_value = confidence_interval['phase'][2][1]-confidence_interval['phase'][3][1]
 	# max_value = confidence_interval['phase'][5][1]-confidence_interval['phase'][3][1]
+	print(fit_result.params['T2'])
 	return 1/fit_result.params['freq'].value/2*1e9
 
 
@@ -94,10 +95,12 @@ if __name__ == '__main__':
 	set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
 
 	from core_tools.data.ds.data_set import load_by_id
-	ds = load_by_id(16961)
-	data = ds('read1')
+	ds = load_by_id(30548)
+	data = ds('read56')
 	print(data)
-	x = data.y()[5:]*1e-9
-	y = data.z()[4][5:]
+	# x = data.y()[5:]*1e-9
+	# y = data.z()[4][5:]
 
+	x = data.x()*1e-9
+	y = data.y()
 	fit_ramsey(x, y, True)

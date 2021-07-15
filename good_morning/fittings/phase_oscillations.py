@@ -83,4 +83,15 @@ def test():
 	print(phase)
 	print(ci)
 if __name__ == '__main__':
-	test()
+	from core_tools.data.SQL.connect import set_up_local_storage
+	set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
+
+	from core_tools.data.ds.data_set import load_by_id
+	ds = load_by_id(20916)
+	data = ds('read56')
+
+	x = data.x()[15:]
+	y = data.y()[15:]
+
+	p, ci = fit_phase(x, y, False)
+	print(p-2*np.pi)

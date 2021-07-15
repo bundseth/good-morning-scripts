@@ -1,12 +1,16 @@
 from good_morning.fittings.J_versus_voltage import fit_J, J_to_voltage
 from core_tools.utility.variable_mgr.var_mgr import variable_mgr
 
+from core_tools.data.SQL.connect import set_up_local_storage
+set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-1-2-10-DEV-1")
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-80,0, -80,0, -120,variable_mgr().symm34_P3, variable_mgr().B3_34,variable_mgr().symm34_P4, -120,0, -80,0)
+voltages_gates = (-40,0, -40,0, -60,variable_mgr().symm34_P3, variable_mgr().cphase34_B3,variable_mgr().symm34_P4, -60,0, -40,0)
+# voltages_gates = (-120,0,0,0, -80,0, -70,0, -70,0, -70,0)
 
 J_off = -0.02003706650354627
 J_max = 91207.33465174529
 alpha = 2.408349090428599
+
 
 def return_scalled_barier(voltage):
 	def barrier(J):
@@ -18,7 +22,20 @@ def gen_J_to_voltage():
 	for gate, voltage in zip(gates, voltages_gates):
 		barriers += [return_scalled_barier(voltage)]
 	return barriers
+	
+def barrier_perc_to_voltage(percentage):
+	voltages = list()
+	for V in voltages_gates:
+		voltages.append(percentage*V)
 
+	return tuple(voltages)
+	
+def return_delta_B_J_relation():
+	coeff= []
+	for i in range(6):
+		coeff += [getattr(variable_mgr(),f'iSWAP_45_J_f_res_coeff_{i}')]
+
+	return np.poly1d(coeff)
 
 if __name__ == '__main__':
 	import numpy as np

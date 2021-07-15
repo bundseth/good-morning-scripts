@@ -1,11 +1,12 @@
 from core_tools.data.SQL.connect import set_up_local_storage
-set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
+set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-1-2-10-DEV-1")
 
 from good_morning.fittings.J_versus_voltage import fit_J, J_to_voltage, voltage_to_J
 from core_tools.utility.variable_mgr.var_mgr import variable_mgr
 
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-110,variable_mgr().symm12_P1, variable_mgr().B1_12,variable_mgr().symm12_P2, -90,0, -70,0, -70,0, -70,0)
+voltages_gates = (-50,variable_mgr().symm12_P1, variable_mgr().cphase12_B1,variable_mgr().symm12_P2, -80,0, -40,0, -40,0, -40,0)
+# voltages_gates = (-40,0,50,0, -40,0,0,0,0,0,0,0) 
 
 J_off = 0.019
 J_max = 46213.051
@@ -22,6 +23,12 @@ def gen_J_to_voltage():
 		barriers += [_return_scalled_barier_(voltage)]
 	return barriers
 
+def barrier_perc_to_voltage(percentage):
+	voltages = list()
+	for V in voltages_gates:
+		voltages.append(percentage*V)
+
+	return tuple(voltages)
 
 if __name__ == '__main__':
 	import numpy as np
@@ -34,11 +41,19 @@ if __name__ == '__main__':
 	# print(J_off, J_max, alpha)
 	# _return_scalled_barier_(1)
 
-	# plt.plot(barrier_percentage, J_effective)
+	plt.plot(barrier_percentage, J_effective)
 	plt.plot(barrier_percentage,voltage_to_J(barrier_percentage, variable_mgr().J_V_off12, variable_mgr().J_max12, variable_mgr().J_alpha12))
 	plt.show()
 	# a =J_to_voltage([0, 6.60e+04, 9.10e+04, 1.81e+05, 3.60e+05, 6.25e+05, 1.00e+06, 1.60e+06, 2.40e+06, 4.80e+06, 7.10e+06], J_off, J_max, alpha)
 	# print(a)
 
-	# list_conv = gen_J_to_voltage()
-	# print(list_conv[0](J_effective))
+
+	generators = gen_J_to_voltage()
+
+	on = list()
+	J_wanted = 5e6
+
+	for gen in generators:
+		on.append(gen(J_wanted))
+
+	print(on)

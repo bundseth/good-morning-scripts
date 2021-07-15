@@ -71,7 +71,7 @@ def fit_J(barrier_voltages,J_array, plot=False):
 
 
 def fit_delta_B_vs_J_raw(J, delta_B):
-	return np.poly1d(np.polyfit(J, delta_B, 4))
+	return np.poly1d(np.polyfit(J, delta_B, 5))
 
 def fit_delta_B_vs_J(J, delta_B, plot=False):
 	J = np.asarray(J)

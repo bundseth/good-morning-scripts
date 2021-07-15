@@ -78,8 +78,8 @@ if __name__ == '__main__':
     set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
 
     from core_tools.data.ds.data_set import load_by_id
-    ds = load_by_id(15996)
-    data = np.average(np.reshape(ds('read4').y(), (5, 21)), axis= 0)
+    ds = load_by_id(32369)
+    data = np.average(np.reshape(ds('read1').y(), (2, 21))[1:], axis= 0)
 
     a,b = fit_allXY(data, 300e-9, True)
     print(a, b)

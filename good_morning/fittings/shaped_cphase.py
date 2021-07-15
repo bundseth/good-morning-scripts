@@ -26,9 +26,9 @@ def fit_phase_raw(phases,amplitudes, even):
 	# estimators for fit
 	min_val = np.min(amplitudes)
 	max_val = np.max(amplitudes)
+	
+	phase_est = np.pi
 	if even == True : 
-		phase_est = np.pi
-	else:
 		phase_est = 0
 
 	fit_params = lmfit.Parameters()
@@ -55,7 +55,7 @@ def fit_phase(phases,amplitudes, even=True, plot=False):
 		phase (double) : measured phase on the fitting
 		ci (tuple) : 95% confidence interval
 	'''
-	if even : 
+	if not even : 
 		amplitudes = -1*amplitudes + 1
 
 	fit_result, confidence_interval = fit_phase_raw(phases, amplitudes, even)
@@ -64,13 +64,12 @@ def fit_phase(phases,amplitudes, even=True, plot=False):
 	freq = fit_result.params['freq_offset'].value
 
 
-	pt = (2*np.pi)/freq
-	print(pt)
-	idx = np.where((phases > pt-2.5) & (phases < pt + 2.5))[0]
-	detailed_fit  =  np.poly1d(np.polyfit(phases[idx], amplitudes[idx], 3))
+	pt = (2*np.pi)/freq/2
+	idx = np.where((phases > pt-2) & (phases < pt + 2))[0]
+	detailed_fit  =  np.poly1d(np.polyfit(phases[idx], amplitudes[idx], 7))
 
-	pi_time = phases[idx][np.argmax(detailed_fit(phases[idx]))]/2
-	print(pi_time, pi_time*2)
+	pi_time = phases[idx][np.argmax(detailed_fit(phases[idx]))]
+
 	if plot==True:
 		plt.figure()
 		plt.plot(phases, amplitudes, '-', label='original data')
@@ -99,7 +98,8 @@ if __name__ == '__main__':
     from core_tools.data.SQL.connect import SQL_conn_info_local, set_up_remote_storage, sample_info, set_up_local_storage
     from core_tools.data.ds.data_set import load_by_id
 
-    set_up_remote_storage('131.180.205.81', 5432, 'xld_measurement_pc', 'XLDspin001', 'spin_data', "6dot", "XLD", "6D3S - SQ20-20-5-18-4")
+    # set_up_remote_storage('131.180.205.81', 5432, 'xld_measurement_pc', 'XLDspin001', 'spin_data', "6dot", "XLD", "6D3S - SQ20-20-5-18-4")
+    set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
 
     # ds = load_by_id(16949)
     # data = ds('read5')
@@ -125,10 +125,10 @@ if __name__ == '__main__':
     # data = ds('read4')
     # fit_phase(data.x(), data.y(), True, True)
 
-    ds = load_by_id(17063)
-    data = ds('read2')
-    fit_phase(data.x(), data.y(), False, True)
-
+    ds = load_by_id(20622)
+    data = ds('read5')
+    a = fit_phase(data.x(), data.y(), True, True)
+    print(a)
 
 
     # plt.show()
