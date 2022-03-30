@@ -14,7 +14,7 @@ def res_function(pars, x, data=None):
 
 	if data is None:
 		return model
-	return model-data
+	return np.nan_to_num(model-data)
 
 def fit_phase_raw(phases,amplitudes, even):
 	'''
@@ -24,8 +24,8 @@ def fit_phase_raw(phases,amplitudes, even):
 		amplitudes (np.ndarray) : array with amplitude for the phase
 	'''
 	# estimators for fit
-	min_val = np.min(amplitudes)
-	max_val = np.max(amplitudes)
+	min_val = np.min(np.nan_to_num(amplitudes))
+	max_val = np.max(np.nan_to_num(amplitudes))
 	
 	phase_est = np.pi
 	if even == True : 
@@ -66,7 +66,7 @@ def fit_phase(phases,amplitudes, even=True, plot=False):
 
 	pt = (2*np.pi)/freq/2
 	idx = np.where((phases > pt-2) & (phases < pt + 2))[0]
-	detailed_fit  =  np.poly1d(np.polyfit(phases[idx], amplitudes[idx], 7))
+	detailed_fit  =  np.poly1d(np.polyfit(phases[idx], np.nan_to_num(amplitudes[idx]), 7))
 
 	pi_time = phases[idx][np.argmax(detailed_fit(phases[idx]))]
 

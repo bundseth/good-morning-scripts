@@ -15,7 +15,8 @@ def res_function(pars, x, data=None):
 
 	if data is None:
 		return model
-	return model-data
+		
+	return np.nan_to_num(model-data)
 
 def get_freq_and_phase_estimate(time, amp):
 	data = np.zeros([amp.size*10])
@@ -37,9 +38,9 @@ def fit_ramsey_raw(time,amplitudes):
 		amplitudes (np.ndarray) : array with amplitude
 	'''
 	# estimators for fit
-	min_val = np.min(amplitudes)
-	max_val = np.max(amplitudes)
-	freq_est, phase_est = get_freq_and_phase_estimate(time, amplitudes)  
+	min_val = np.min(np.nan_to_num(amplitudes))
+	max_val = np.max(np.nan_to_num(amplitudes))
+	freq_est, phase_est = get_freq_and_phase_estimate(time, np.nan_to_num(amplitudes))  
 	fit_params = lmfit.Parameters()
 	fit_params.add('amp', value=max_val-min_val, min = 0, max=1)
 	fit_params.add('offset', value=(max_val+ min_val)/2, min=0, max=1)
@@ -65,7 +66,7 @@ def fit_ramsey(time,amplitudes, plot=False):
 	'''
 	fit_result, confidence_interval = fit_ramsey_raw(time, amplitudes)
 
-	print(f'rabi freq = {round(fit_result.params["freq"].value*1e-6, 3)} MHz')
+	print(f'rabi freq = {round(fit_result.params["freq"].value*1e-6, 4)} MHz')
 	if plot==True:
 		plt.figure()
 		plt.plot(time, amplitudes, label='original data')
@@ -76,7 +77,6 @@ def fit_ramsey(time,amplitudes, plot=False):
 		plt.show()
 	# min_value = confidence_interval['phase'][2][1]-confidence_interval['phase'][3][1]
 	# max_value = confidence_interval['phase'][5][1]-confidence_interval['phase'][3][1]
-	print(fit_result.params['T2'])
 	return 1/fit_result.params['freq'].value/2*1e9
 
 
@@ -94,13 +94,14 @@ if __name__ == '__main__':
 	from core_tools.data.SQL.connect import set_up_local_storage
 	set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
 
-	from core_tools.data.ds.data_set import load_by_id
-	ds = load_by_id(30548)
-	data = ds('read56')
-	print(data)
+	from core_tools.data.ds.data_set import load_by_uuid
+	ds = load_by_uuid(1630329900257898284)
+	data = ds('read5')
+	# print(data)
 	# x = data.y()[5:]*1e-9
 	# y = data.z()[4][5:]
 
 	x = data.x()*1e-9
 	y = data.y()
-	fit_ramsey(x, y, True)
+	f = fit_ramsey(x, y, True)
+	print(2/f)

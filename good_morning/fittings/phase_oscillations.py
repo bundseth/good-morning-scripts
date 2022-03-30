@@ -9,7 +9,7 @@ def res_function(pars, x, data=None):
 	offset = pars['offset']
 	phase = pars['phase']
 
-	model = 0.5*np.cos(x + phase)*amp + offset
+	model = -0.5*np.cos(x - phase)*amp + offset
 
 	if data is None:
 		return model
@@ -62,7 +62,6 @@ def fit_phase_raw(phases,amplitudes):
 	fit_params.add('offset', value=(max_val+ min_val)/2, min=0, max=1)
 	fit_params.add('phase', value=phase_est, min=-2*np.pi, max=2*np.pi)
 
-
 	mini = lmfit.Minimizer(res_function, fit_params, fcn_args=(phases,), fcn_kws={'data': amplitudes})
 	intermedediate_result = mini.minimize(method='Nelder')
 	result = mini.minimize(method='leastsq', params=intermedediate_result.params)
@@ -73,9 +72,9 @@ def fit_phase_raw(phases,amplitudes):
 
 
 def test():
-	phase = -0.1
+	phase = 1
 	x = np.linspace(0,np.pi*2)
-	y = np.cos(x + phase)/2 + 0.5 + np.random.random(x.shape)*0.1
+	y = -np.cos(x - phase)/2 + 0.5 + np.random.random(x.shape)*0.1
 
 
 	print(phase)
@@ -83,15 +82,16 @@ def test():
 	print(phase)
 	print(ci)
 if __name__ == '__main__':
-	from core_tools.data.SQL.connect import set_up_local_storage
-	set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
+	# from core_tools.data.SQL.connect import set_up_local_storage
+	# set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-XX-X-XX-X")
 
-	from core_tools.data.ds.data_set import load_by_id
-	ds = load_by_id(20916)
-	data = ds('read56')
+	# from core_tools.data.ds.data_set import load_by_uuid
+	# ds = load_by_uuid(1629126017990898284)
+	# data = ds('read1')
 
-	x = data.x()[15:]
-	y = data.y()[15:]
+	# x = data.x()[0:]
+	# y = data.y()[0:]
 
-	p, ci = fit_phase(x, y, False)
-	print(p-2*np.pi)
+	# p, ci = fit_phase(x, y, True)
+	# print(p)
+	test()

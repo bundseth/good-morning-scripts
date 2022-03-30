@@ -79,17 +79,18 @@ def res_calib(target, plot=False):
 		var_mgr.add_variable(f'Qubit {target}', f'pi_q{target}', 'ns',200, 1)
 		var_mgr.add_variable(f'Qubit {target}', f'q{target}_MW_power', 'mV',600, 1)
 
-	s.add(s.pre_pulse)
 	s.add(s.wait(100))	
+	# s.add(s.init123456)
 	s.init(target)
-	# s.init(target)
+	s.add(s.pre_pulse)
 
-	s.add(s.wait(1000))
+	s.add(s.wait(10000))
 
 	gate_set = getattr(s, f'q{target}')
 	old_freq = getattr(var_mgr, f'frequency_q{target}')
+	pi_time = getattr(var_mgr, f'pi_q{target}')
 	s.add(gate_set.X180, f_qubit = linspace(old_freq*1e9-20e6, old_freq*1e9+20e6, 50, axis= 0, name='freq', unit='Hz'))
-	s.add(s.wait(1000))
+	s.add(s.wait(50e3))
 	s.read(target)
 
 	sequence, minstr, name = run_qubit_exp(f'frequency_cal_q{target}', s.sequencer)
@@ -97,7 +98,7 @@ def res_calib(target, plot=False):
 
 	frequency = ds(readout_convertor(f'read{target}')).x()
 	probabilities = ds(readout_convertor(f'read{target}')).y()
-	resonance = fit_resonance(frequency, probabilities, plot=plot)
+	resonance = fit_resonance(frequency, probabilities, rabi_freq=1/pi_time/1e-9/2, plot=plot)
 	var_mgr = variable_mgr()
 
 	old_res = getattr(var_mgr, f'frequency_q{target}')

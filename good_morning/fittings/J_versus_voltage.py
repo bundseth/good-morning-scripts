@@ -4,8 +4,8 @@ import numpy as np
 import lmfit
 
 def J_to_voltage(J, J_off, J_max, alpha):
-	J = np.asarray(J) + 1
-	voltages = (np.log(J/J_max) -J_off)/alpha/2
+	J = np.asarray(J)+1
+	voltages = np.log(J/J_max)/alpha/2 -J_off
 
 	if isinstance(J, np.ndarray):
 		voltages[voltages < 0] = 0
@@ -24,7 +24,8 @@ def res_function(pars, x, data=None):
 	if data is None:
 		return model
 
-	return model-data
+	return  np.nan_to_num(model-data)
+
 
 def fit_J_raw(barrier_voltages,J_array):
 	'''
@@ -34,23 +35,22 @@ def fit_J_raw(barrier_voltages,J_array):
 		J_array (np.ndarray) : array with amplitude of J vor the barrier_voltages
 	'''
 	# estimators for fit
-	J_off = 0
-	J_max = J_array[-1]/2.7
-	alpha = 1/barrier_voltages[-1]/2
-
+	fit = np.polyfit(barrier_voltages, np.log(J_array), 1)
+	alpha = fit[1]/2
+	J_off = fit[0]/fit[1]
+	J_max = 1
 	fit_params = lmfit.Parameters()
 	fit_params.add('J_off', value=J_off)
-	fit_params.add('J_max', value=J_max)
+	fit_params.add('J_max', value=J_max, min=0)
 	fit_params.add('alpha', value=alpha)
 
-
 	mini = lmfit.Minimizer(res_function, fit_params, fcn_args=(barrier_voltages,), fcn_kws={'data': J_array})
-	intermedediate_result = mini.minimize(method='Nelder')
-	result = mini.minimize(method='leastsq', params=intermedediate_result.params)
+	intermedediate_result = mini.minimize(method='nelder')
+	result = mini.minimize(method='cg', params=intermedediate_result.params)
 
-	confidence_intervals = lmfit.conf_interval(mini, result, verbose=False)
+# 	confidence_intervals = lmfit.conf_interval(mini, result, verbose=False)
 	
-	return result, confidence_intervals
+	return result, None
 
 
 def fit_J(barrier_voltages,J_array, plot=False):

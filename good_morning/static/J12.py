@@ -5,11 +5,11 @@ from good_morning.fittings.J_versus_voltage import fit_J, J_to_voltage, voltage_
 from core_tools.utility.variable_mgr.var_mgr import variable_mgr
 
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-50,variable_mgr().symm12_P1, variable_mgr().cphase12_B1,variable_mgr().symm12_P2, -80,0, -40,0, -40,0, -40,0)
+voltages_gates = (-50,variable_mgr().symm12_P1, variable_mgr().cphase12_B1,variable_mgr().symm12_P2, -80,0, -0,0, -0,0, -0,0)
 # voltages_gates = (-40,0,50,0, -40,0,0,0,0,0,0,0) 
 
-J_off = 0.019
-J_max = 46213.051
+J_off = 0.019 
+J_max = 46213.051 
 alpha = 2.479
 
 def _return_scalled_barier_(voltage):

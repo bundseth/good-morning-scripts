@@ -30,15 +30,21 @@ def PSB12_calibration(sweep_range=0.5, plot=False):
     s = six_dot_sample(qc.Station.default.pulse)
     
     s.add(s.init12, anti_crossing = anticrossing)
-    s.add(s.q2.X180)
+    s.add(s.pre_pulse)
+
+    s.add(s.wait(10000)) 
+    s.add(s.q1.X90)
+    # s.add(s.wait(50e3)) 
     s.add(s.read12, anti_crossing = anticrossing)
+
+    # s.add(s.rand_read12, anti_crossing = anticrossing)
     
     s.n_rep = 500
     sequence, minstr, name = run_qubit_exp(f'PSB12_calibration_SLOW', s.sequencer)
 
     qc.Station.default.MW_source.on()    
     ds_on = scan_generic(sequence, minstr, name=name).run()
-    
+
     # qc.Station.default.MW_source.off()
     # ds_off = scan_generic(sequence, minstr, name=name).run()
 
@@ -71,14 +77,19 @@ def PSB56_calibration(sweep_range=0.5, plot=False):
     s = six_dot_sample(qc.Station.default.pulse)
     
     s.add(s.init56, anti_crossing = anticrossing)
-    s.add(s.q5.X180)
+    s.add(s.pre_pulse)
+
+    s.add(s.wait(10000)) 
+    s.add(s.q6.X90)
+    # s.add(s.wait(50e3)) 
     s.add(s.read56, anti_crossing = anticrossing)
     
     s.n_rep = 500
-    sequence, minstr, name = run_qubit_exp(f'PSB12_calibration_SLOW', s.sequencer)
+    sequence, minstr, name = run_qubit_exp(f'PSB56_calibration_SLOW', s.sequencer)
 
     qc.Station.default.MW_source.on()    
     ds_on = scan_generic(sequence, minstr, name=name).run()
+
     # qc.Station.default.MW_source.off()    
     # ds_off = scan_generic(sequence, minstr, name=name).run()
 

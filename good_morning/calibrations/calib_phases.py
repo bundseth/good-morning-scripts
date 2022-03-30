@@ -25,19 +25,19 @@ def phase_calib(target, *gates, plot=False):
 	s = six_dot_sample(qc.Station.default.pulse)
 	var_mgr = variable_mgr()
 
+	s.init(target)
 	s.add(s.pre_pulse)
 
-	s.init(target)
-	s.add(s.wait(1000))
-
+	s.add(s.wait(10000))
 	gate_set = getattr(s, f'q{target}')
 
 	target_gates = []
 	for gate in gates:
 		target_gates += [get_target(s,gate)]
-	s.add_func(phase_offset_charac, gate_set, target_gates, npoints=50)
+	
+	s.add_func(phase_offset_charac, gate_set, target_gates, npoints=80)
 
-	s.add(s.wait(1000))
+	s.add(s.wait(50e3))
 
 	s.read(target)
 
@@ -49,10 +49,15 @@ def phase_calib(target, *gates, plot=False):
 	amplitude = ds(readout_convertor(f'read{target}')).y()
 
 	# get rid of the first part due to heating
-	input_phases = input_phases[20:]
-	amplitude = amplitude[20:]
+	input_phases = input_phases[10:]
+	amplitude = amplitude[10:]
 
 	phase, std_error = fit_phase(input_phases, amplitude, plot=plot)
+	if phase > np.pi:
+		phase -=np.pi*2
+	if phase < -np.pi:
+		phase +=np.pi*2
+		
 	phase = phase/len(target_gates)
 
 	if not hasattr(var_mgr, f'PHASE_q{target}_{gate.replace(".", "_")}'):

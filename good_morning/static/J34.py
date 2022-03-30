@@ -4,14 +4,14 @@ from core_tools.utility.variable_mgr.var_mgr import variable_mgr
 from core_tools.data.SQL.connect import set_up_local_storage
 set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-1-2-10-DEV-1")
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-40,0, -40,0, -60,variable_mgr().symm34_P3, variable_mgr().cphase34_B3,variable_mgr().symm34_P4, -60,0, -40,0)
+voltages_gates = (0,0, 0,0, -50,variable_mgr().symm34_P3, variable_mgr().cphase34_B3,variable_mgr().symm34_P4, -50,0, -0,0)
 # voltages_gates = (-120,0,0,0, -80,0, -70,0, -70,0, -70,0)
-
-J_off = -0.02003706650354627
+ 
+J_off = -0.02003706650354627 
 J_max = 91207.33465174529
-alpha = 2.408349090428599
-
-
+alpha = 2.408349090428599 
+  
+ 
 def return_scalled_barier(voltage):
 	def barrier(J):
 		return voltage*J_to_voltage(J, variable_mgr().J_V_off34, variable_mgr().J_max34, variable_mgr().J_alpha34)

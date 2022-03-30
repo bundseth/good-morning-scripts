@@ -4,12 +4,12 @@ from core_tools.utility.variable_mgr.var_mgr import variable_mgr
 
 
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-40,0, -40,0, -40,0, -40,0, -140,variable_mgr().symm56_P5, variable_mgr().cphase56_B5,variable_mgr().symm56_P6) 
+voltages_gates = (-0,0, -0,0, -0,0, -0,0, -80,variable_mgr().symm56_P5, variable_mgr().cphase56_B5,variable_mgr().symm56_P6) 
 # voltages_gates = (-120,0,0,0, -80,0, -70,0, -70,0, -70,0)
 
 J_off = 0.0264355989289498
 J_max = 39003.52887708517
-alpha = 2.2928821036820044
+alpha = 2.2928821036820044  
 
 def return_scalled_barier(voltage):
 	def barrier(J):

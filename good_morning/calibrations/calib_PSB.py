@@ -41,14 +41,17 @@ def _run_PSB_12_exp(sweep_range, MW_pulse=False):
     anticrossing =tuple(anticrossing)
 
     s = six_dot_sample(qc.Station.default.pulse)
-    s.n_rep = 500
-    
+
     s.add(s.init12, anti_crossing = anticrossing)
+    s.add(s.pre_pulse)
+
+    s.add(s.wait(10000))    
     if MW_pulse == True:
         # seg = s.get_seg()
         # seg.qubit1_MW.add_chirp(0, 50e3, var_mgr.frequency_q1*1e9-5e6, var_mgr.frequency_q1*1e9+5e6, 300)
         # seg.reset_time()
-        s.add(s.q2.X180)
+        s.add(s.q1.X180)
+    s.add(s.wait(50e3))
     s.add(s.read12, anti_crossing = anticrossing)
     
     sequence, minstr, name = run_qubit_exp(f'PSB12_calibration_FAST_MW={MW_pulse}', s.sequencer)
@@ -59,24 +62,29 @@ def _run_PSB_56_exp(sweep_range, MW_pulse=False):
     var_mgr = variable_mgr()
     gates, _311113, ST_anti_12, ST_anti_12_tc_high, ST_anti_56, ST_anti_56_tc_high, vSD1_threshold, vSD2_threshold = variables()
     
+    gate = 'vP5'
+    
     anticrossing = list(ST_anti_56)
-    anticrossing[9] = lp.linspace(anticrossing[9] -  sweep_range/2,anticrossing[9] +  sweep_range/2, 50, axis=0, name='vP5', unit='mV')
+    anticrossing[gates.index(gate)] = lp.linspace(anticrossing[gates.index(gate)] -  sweep_range/2,anticrossing[gates.index(gate)] +  sweep_range/2, 50, axis=0, name=gate, unit='mV')
     anticrossing =tuple(anticrossing)
 
     s = six_dot_sample(qc.Station.default.pulse)
-    s.n_rep = 500
-    
     s.add(s.init56, anti_crossing = anticrossing)
+    s.add(s.pre_pulse)
+
+    s.add(s.wait(10000))    
     if MW_pulse == True:
         # seg = s.get_seg()
         # seg.qubit6_MW.add_chirp(0, 20e3, var_mgr.frequency_q6*1e9-5e6, var_mgr.frequency_q6*1e9+5e6, 300)
         # seg.reset_time()
-        s.add(s.q5.X180)
+        s.add(s.q6.X180)
+    s.add(s.wait(50e3))
     s.add(s.read56, anti_crossing = anticrossing)
     
     sequence, minstr, name = run_qubit_exp(f'PSB56_calibration_FAST_MW={MW_pulse}', s.sequencer)
 
     return scan_generic(sequence, minstr, name=name).run()
+
 
 @job_wrapper
 def PSB_calibration(pair= 12, sweep_range=2, plot=False):
@@ -86,19 +94,18 @@ def PSB_calibration(pair= 12, sweep_range=2, plot=False):
     else:
         ds_no_MW = _run_PSB_56_exp(sweep_range, False)
         ds_wi_MW = _run_PSB_56_exp(sweep_range, True)
+
     
-    print(ds_no_MW)
     x = ds_no_MW(f'read{int(pair)}').x()
     y_no_MW = ds_no_MW(f'read{int(pair)}').y()
     y_no_MW[np.isnan(y_no_MW)] = 0
     y_wi_MW = ds_wi_MW(f'read{int(pair)}').y()
     y_wi_MW[np.isnan(y_wi_MW)] = 0    
-    y_sel = ds_wi_MW(f'init{int(pair)} selected').y()
+    y_sel = ds_wi_MW(f'total_selected').y()
 
     idx_invalid = np.where(y_sel < 200)[0]
     y_no_MW[idx_invalid] = 0
     y_wi_MW[idx_invalid] = 0
-
     diff = np.abs(running_mean(y_wi_MW-y_no_MW, 3))
     
     voltage_read = x[np.argmax(diff)]

@@ -24,14 +24,15 @@ def Pi_calib(target, plot=False):
 	s = six_dot_sample(qc.Station.default.pulse)
 	var_mgr = variable_mgr()
 
-	s.add(s.pre_pulse)
-	s.add(s.wait(100))	
 	s.init(target)
+	s.add(s.pre_pulse)
+
+	s.add(s.wait(10000))
 
 	gate_set = getattr(s, f'q{target}')
 	old_pi = getattr(var_mgr, f'pi_q{target}')
 	s.add(gate_set.X180, t_pulse = linspace(1,old_pi*4, 60, 'time', 'ns', 0)/2)
-	s.add(s.wait(100000))
+	s.add(s.wait(50e3))
 	s.read(target)
 
 	sequence, minstr, name = run_qubit_exp(f'Pi_cal_q{target}', s.sequencer)

@@ -6,8 +6,8 @@ from core_tools.data.SQL.connect import set_up_local_storage
 set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-1-2-10-DEV-1")
 
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-40,0, -40,variable_mgr().symm23_P2, variable_mgr().cphase23_B2,variable_mgr().symm23_P3, -40,0, -40,0, -40,0)
-# voltages_gates = (0,0,0,0,180,0, 0,0, 0,0, 0,0)
+voltages_gates = (0,0, -30,variable_mgr().symm23_P2, variable_mgr().cphase23_B2,variable_mgr().symm23_P3, -40,0, -0,0, -0,0)
+# voltages_gates = (0,0,0,0,180,0, 0,0, 0,0, 0,0) 
 
 J_off = -0.0023569391439328497
 J_max =280095.87977114564
@@ -43,7 +43,12 @@ def barrier_perc_to_voltage(percentage):
 	return tuple(voltages)
 
 def return_delta_B_J_relation():
-	return fit_delta_B_vs_J(J_rel*2, delta_B, False)
+	coeff= []
+	target = '23'
+	for i in range(6):
+		coeff += [getattr(variable_mgr(),f'iSWAP_{target}_J_f_res_coeff_{i}')]
+
+	return np.poly1d(coeff)
 
 if __name__ == '__main__':
 	import numpy as np

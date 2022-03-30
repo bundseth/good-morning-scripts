@@ -25,14 +25,14 @@ import good_morning.static.J56 as J56
 
 def CROT_cali_meas(pair, target, ancilla, old_freq, time, flip):
 	s = six_dot_sample(qc.Station.default.pulse)
-	s.add(s.pre_pulse)
 
 	var_mgr = variable_mgr()
 
 	pair = str(int(pair))
 	s.init(pair[0], pair[1])
+	s.add(s.pre_pulse)
 
-	s.add(s.wait(100))
+	s.add(s.wait(10000))
 
 	gate_set = getattr(s, f'q{pair}')
 	target_gate_set = getattr(s, f'q{pair[target-1]}')
@@ -42,12 +42,12 @@ def CROT_cali_meas(pair, target, ancilla, old_freq, time, flip):
 		s.add(ancilla_gate_set.X180)
 
 	scan_range = single_qubit_gate_spec(f'qubit{target}_MW', 
-                                    linspace(old_freq*1e9-30e6, old_freq*1e9+30e6,50, axis= 0, name='freq', unit='Hz'),
+                                    linspace(old_freq*1e9-15e6, old_freq*1e9+15e6,30, axis= 0, name='freq', unit='Hz'),
                                     time, getattr(var_mgr, f'CROT{pair}_MW_power'), padding=20)
 
 	s.add(getattr(gate_set, f'CROT{target}{ancilla}') , gate_spec = scan_range)
 
-	s.add(s.wait(100))
+	s.add(s.wait(50e3))
 	s.read(pair[target-1])
 
 	sequence, minstr, name = run_qubit_exp(f'crot-z_crot_cal_q{pair}_target{pair[target-1]}', s.sequencer)
@@ -67,34 +67,34 @@ def CROT_calib(pair, target, ancilla, plot=False):
 	pair = str(int(pair))
 
 	old_crot = getattr(var_mgr, f'crot{pair[target-1]}{pair[ancilla-1]}')
-	old_z_crot = getattr(var_mgr, f'z_crot{pair[target-1]}{pair[ancilla-1]}')
+	# old_z_crot = getattr(var_mgr, f'z_crot{pair[target-1]}{pair[ancilla-1]}')
 	crot_time = getattr(var_mgr, f'pi_crot{pair[target-1]}')
-	z_crot_time = getattr(var_mgr, f'pi_z_crot{pair[target-1]}')
+	# z_crot_time = getattr(var_mgr, f'pi_z_crot{pair[target-1]}')
 
-	gate_time= min(crot_time,z_crot_time)	
+	gate_time= crot_time#min(crot_time,z_crot_time)	
 
 	sequence, minstr, name = CROT_cali_meas(pair, target, ancilla, old_crot, gate_time, 1)
 	ds_one = scan_generic(sequence, minstr, name=name).run()
-	sequence, minstr, name = CROT_cali_meas(pair, target, ancilla, old_z_crot, gate_time, 0)
-	ds_two = scan_generic(sequence, minstr, name=name).run()
+	# sequence, minstr, name = CROT_cali_meas(pair, target, ancilla, old_z_crot, gate_time, 0)
+	# ds_two = scan_generic(sequence, minstr, name=name).run()
 
 	frequency_one = ds_one(readout_convertor(f'read{pair[target-1]}')).x()
 	probabilities_one = ds_one(readout_convertor(f'read{pair[target-1]}')).y()
 	fit_freq_one = fit_resonance(frequency_one[5:], probabilities_one[5:], plot=plot)
 	
-	frequency_two = ds_two(readout_convertor(f'read{pair[target-1]}')).x()
-	probabilities_two = ds_two(readout_convertor(f'read{pair[target-1]}')).y()
-	fit_freq_two = fit_resonance(frequency_two[5:], probabilities_two[5:], plot=plot)
+	# frequency_two = ds_two(readout_convertor(f'read{pair[target-1]}')).x()
+	# probabilities_two = ds_two(readout_convertor(f'read{pair[target-1]}')).y()
+	# fit_freq_two = fit_resonance(frequency_two[5:], probabilities_two[5:], plot=plot)
 
-	z_crot_res = min(fit_freq_one, fit_freq_two)
-	crot_res = max(fit_freq_one, fit_freq_two)
+	crot_res = fit_freq_one#max(fit_freq_one, fit_freq_two)
+	# z_crot_res = min(fit_freq_one, fit_freq_two)
 
-	old_z_crot = getattr(var_mgr, f'z_crot{pair[target-1]}{pair[ancilla-1]}')
-	setattr(var_mgr, f'z_crot{pair[target-1]}{pair[ancilla-1]}', round(z_crot_res*1e-9,6))
+	# old_z_crot = getattr(var_mgr, f'z_crot{pair[target-1]}{pair[ancilla-1]}')
+	# setattr(var_mgr, f'z_crot{pair[target-1]}{pair[ancilla-1]}', round(z_crot_res*1e-9,6))
 	old_crot = getattr(var_mgr, f'crot{pair[target-1]}{pair[ancilla-1]}')
 	setattr(var_mgr, f'crot{pair[target-1]}{pair[ancilla-1]}', round(crot_res*1e-9,6))
-	print(f'calibrated z_crot_res for qubit pair {pair}, target {pair[target-1]} '+
-		f'Old z_crot_res : {round(old_z_crot,6)} \n New z_crot_res : {round(z_crot_res*1e-9,6)} \n')
+	# print(f'calibrated z_crot_res for qubit pair {pair}, target {pair[target-1]} '+
+	# 	f'Old z_crot_res : {round(old_z_crot,6)} \n New z_crot_res : {round(z_crot_res*1e-9,6)} \n')
 	print(f'calibrated crot_res for qubit pair {pair}, target {pair[target-1]} '+
 		f'Old crot_res : {round(old_crot,6)} \n New z_crot_res : {round(crot_res*1e-9,6)} \n')
 

@@ -18,7 +18,7 @@ def SD1_calibration(verbose = False, plot=False):
     
     anticrossing = list(ST_anti_12)
     anticrossing[1] = lp.linspace(anticrossing[1] -3,anticrossing[1] + 3, 2, axis=1, name='vP1', unit='mV') 
-    anticrossing[12] = lp.linspace(anticrossing[12] - 3,anticrossing[12] + 3, 30, axis=0, name='vSD1', unit='mV')
+    anticrossing[12] = lp.linspace(anticrossing[12] - 3,anticrossing[12] + 3, 80, axis=0, name='vSD1', unit='mV')
     anticrossing =tuple(anticrossing)
     s = six_dot_sample(qc.Station.default.pulse)
     s.add(s.read12, anti_crossing = anticrossing)
@@ -27,7 +27,7 @@ def SD1_calibration(verbose = False, plot=False):
     sequence, minstr, name = run_qubit_exp(f'SD1_calibration', s.sequencer)
 
     ds = scan_generic(sequence, minstr, name=name).run()
-    subset = ds.m1a.average(2)
+    subset = ds.m1_1.average(2)
     data = subset()
     y = subset.y()
 
@@ -56,8 +56,8 @@ def SD2_calibration(verbose = False, plot=False):
     gates, _311113, ST_anti_12, ST_anti_12_tc_high, ST_anti_56, ST_anti_56_tc_high, vSD1_threshold, vSD2_threshold = variables()
    
     anticrossing = list(ST_anti_56)
-    anticrossing[11] = lp.linspace(anticrossing[11] - 3,anticrossing[11] + 3, 2, axis=1, name='vP6', unit='mV') 
-    anticrossing[13] = lp.linspace(anticrossing[13] - 3,anticrossing[13] + 3, 40, axis=0, name='vSD2', unit='mV')
+    anticrossing[11] = lp.linspace(anticrossing[11] - 5,anticrossing[11] + 5, 2, axis=1, name='vP6', unit='mV') 
+    anticrossing[13] = lp.linspace(anticrossing[13] - 3,anticrossing[13] + 3, 80, axis=0, name='vSD2', unit='mV')
     anticrossing =tuple(anticrossing)
 
     s = six_dot_sample(qc.Station.default.pulse)
@@ -67,7 +67,7 @@ def SD2_calibration(verbose = False, plot=False):
 
     ds = scan_generic(sequence, minstr, name=name).run()
     
-    averaged_data_set = ds.m1a.average(2)
+    averaged_data_set = ds.m1_1.average(2)
     y = averaged_data_set.y()
     data = averaged_data_set.z()
         

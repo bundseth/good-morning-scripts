@@ -6,7 +6,7 @@ from core_tools.data.SQL.connect import set_up_local_storage
 set_up_local_storage("xld_user", "XLDspin001", "vandersypen_data", "6dot", "XLD", "6D2S - SQ21-1-2-10-DEV-1")
 
 gates  = ('vB0','vP1', 'vB1','vP2', 'vB2','vP3', 'vB3','vP4', 'vB4','vP5', 'vB5','vP6')
-voltages_gates = (-40,0, -40,0, -40,0, -120,variable_mgr().symm45_P4, variable_mgr().cphase45_B4,variable_mgr().symm45_P5, -120,0)
+voltages_gates = (-0,0, -0,0, -0,0, -70,variable_mgr().symm45_P4, variable_mgr().cphase45_B4,variable_mgr().symm45_P5, -70,0)
 # voltages_gates = (0,0,0,0, 0,0, -80,0, 200,0, -100,0)
 
 J_off = 0.022917827490600135
