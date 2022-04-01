@@ -1,0 +1,7 @@
+{
+    "PIXEL_SIZE":4,
+    "FPS":10,
+    "MAIN_PATH":"/media/hard-drive/Python/MEP/",
+    "DATASET_PATH":"/home/davidb/Desktop/data/",
+    "MODEL_RUNS_PATH":"C:/V2_code/good_morning_scripts/good_morning/calibrations/model_runs"
+ }
